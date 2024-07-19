@@ -13,6 +13,11 @@ data <- read.csv("ufo_subset.csv")
 head(data)
 summary(data)
 
+#Remove hoax data first, so no time is spent cleaning data that will be deleted anyway
+pattern <- "(?i)\\(\\([^(]*HOAX[^)]*\\)\\)"
+data <- data %>% 
+  filter(!str_detect(data$comments, pattern))
+  
 #fill in missing country data as NA
 data$country[data$country == ""] <- NA
 
@@ -20,4 +25,13 @@ data$country[data$country == ""] <- NA
 data$country <- as.factor(data$country)
 levels(data$country)
 
-#format the dates as dates rather than character strings
+#fill in missing shape data as NA
+data$shape[data$shape == "" | data$shape == "unknown"] <- NA
+
+#format the datetime column as dates rather than character strings
+data$datetime <- ymd_hm(data$datetime)
+
+#format the date_posted column as dates rather than character strings
+data$date_posted <- dmy(data$date_posted)
+
+#IMPORTANT: clean up duration.seconds column??
